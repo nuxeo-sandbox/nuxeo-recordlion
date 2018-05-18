@@ -28,3 +28,6 @@ bin/
 *~bak
 *-bak
 *.bak
+
+# Specific ignores
+private-test.conf

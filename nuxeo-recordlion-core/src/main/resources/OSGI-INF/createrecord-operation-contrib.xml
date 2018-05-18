@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<component name="nuxeo.recordlion.operation.createrecord" version="1.0">
+<component name="nuxeo.recordlion.operations" version="1.0">
 
   <extension point="operations" target="org.nuxeo.ecm.core.operation.OperationServiceComponent">
-    <operation class="nuxeo.recordlion.CreateRecord"/>
+    <operation class="nuxeo.recordlion.operations.CreateRecord"/>
   </extension>
 
 </component>
