@@ -20,5 +20,7 @@
       <artifactId>nuxeo-automation-test</artifactId>
       <scope>test</scope>
     </dependency>
+
+
   </dependencies>
 </project>

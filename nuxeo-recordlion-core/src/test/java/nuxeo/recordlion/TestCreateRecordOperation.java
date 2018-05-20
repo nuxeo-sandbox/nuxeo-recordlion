@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.inject.Inject;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.automation.AutomationService;
@@ -25,10 +25,10 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import nuxeo.recordlion.operations.CreateRecord;
 
 @RunWith(FeaturesRunner.class)
-@Features(AutomationFeature.class)
+@Features({AutomationFeature.class, SimpleFeatureCustom.class})
 @RepositoryConfig(init = DefaultRepositoryInit.class, cleanup = Granularity.METHOD)
 @Deploy("nuxeo.recordlion.nuxeo-recordlion-core")
-public class TestCreateRecord {
+public class TestCreateRecordOperation {
 
     @Inject
     protected CoreSession session;
@@ -36,6 +36,7 @@ public class TestCreateRecord {
     @Inject
     protected AutomationService automationService;
 
+    @Ignore
     @Test
     public void shouldCallTheOperation() throws OperationException {
         OperationContext ctx = new OperationContext(session);
@@ -43,6 +44,7 @@ public class TestCreateRecord {
         assertEquals("/", doc.getPathAsString());
     }
 
+    @Ignore
     @Test
     public void shouldCallWithParameters() throws OperationException {
         final String path = "/default-domain";
