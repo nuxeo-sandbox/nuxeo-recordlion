@@ -4,9 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
@@ -33,10 +37,10 @@ import nuxeo.recordlion.service.RecordLionService;
  * <p>
  * So, these tests are more for test while developing, click the button and wait and follow in debugger, etc.
  * <p>
- * Also, IMPORTANT - IMPORTANT: This test assumes there is a "Claim" RecordClass in the distant server. Make sure you
- * have this type of RecordClass
+ * Also, IMPORTANT - IMPORTANT: The test check for the calssRecordClassName set in the test configuration (see
+ * SeimpleFeatureCustom)
  *
- * @since TODO
+ * @since 10.1
  */
 
 @RunWith(FeaturesRunner.class)
@@ -44,7 +48,7 @@ import nuxeo.recordlion.service.RecordLionService;
 @Deploy("nuxeo.recordlion.nuxeo-recordlion-core")
 public class TestRecordLionService {
 
-    public static String TEST_RECORDCLASS = "Claim";
+    public static final long TIMEOUT_SECONDS = 180;
 
     @Inject
     protected RecordLionService recordlionservice;
@@ -65,6 +69,12 @@ public class TestRecordLionService {
 
             value = SimpleFeatureCustom.getLocalProperty(Constants.CONF_KEY_PASSWORD);
             assertTrue("Missing " + Constants.CONF_KEY_PASSWORD, StringUtils.isNotBlank(value));
+
+            value = SimpleFeatureCustom.getLocalProperty(SimpleFeatureCustom.TEST_KEY_RECORD_CLASS_NAME);
+            assertTrue("Missing " + SimpleFeatureCustom.TEST_KEY_RECORD_CLASS_NAME, StringUtils.isNotBlank(value));
+
+            value = SimpleFeatureCustom.getLocalProperty(SimpleFeatureCustom.TEST_KEY_RECORD_CLASS_ID);
+            assertTrue("Missing " + SimpleFeatureCustom.TEST_KEY_RECORD_CLASS_ID, StringUtils.isNotBlank(value));
         }
 
     }
@@ -88,6 +98,7 @@ public class TestRecordLionService {
 
     }
 
+    @Ignore
     @Test
     public void testConnectionWithSimpleGET() throws Exception {
 
@@ -99,13 +110,15 @@ public class TestRecordLionService {
 
     }
 
+    @Ignore
     @Test
     public void testHasExpectedRecordClass() throws Exception {
 
         Assume.assumeTrue("No custom configuration file => no test", SimpleFeatureCustom.hasLocalTestConfiguration());
 
-        //JsonNode mainNode = recordlionservice.callGET("recordclasses?all=true&page=0&pageSize=10");
-        String endPoint = String.format(Constants.GET_RECORDCLASSES_CONTAINING_TITLEORCODE, TEST_RECORDCLASS);
+        String classNameToTest = SimpleFeatureCustom.getLocalProperty(SimpleFeatureCustom.TEST_KEY_RECORD_CLASS_NAME);
+        // JsonNode mainNode = recordlionservice.callGET("recordclasses?all=true&page=0&pageSize=10");
+        String endPoint = String.format(Constants.GET_RECORDCLASSES_CONTAINING_TITLEORCODE, classNameToTest);
         JsonNode mainNode = recordlionservice.callGET(endPoint);
         assertNotNull(mainNode);
 
@@ -114,16 +127,57 @@ public class TestRecordLionService {
 
     }
 
+    @Ignore
     @Test
     public void testCreateRecord() throws Exception {
 
         DocumentModel doc = session.getDocument(new PathRef("/default-domain"));
         assertNotNull(doc);
 
-        JsonNode result = recordlionservice.createRecordForDocument(doc, null);
-
+        // WE MUST MANUALLY CLASSIFY in this example, we have the class Id
+        String recordClassIdStr = SimpleFeatureCustom.getLocalProperty(SimpleFeatureCustom.TEST_KEY_RECORD_CLASS_ID);
+        long recordClassId = Long.parseLong(recordClassIdStr);
+        JsonNode result = recordlionservice.recordizeDocument(doc, recordClassId, true, null);
+        assertNotNull(result);
         String z = "";
-        if(zz != null) {
+        if (z != null) {
+
+        }
+
+    }
+
+    @Ignore
+    @Test
+    public void testPullPendingActions() throws Exception {
+
+        //String forceUri = "https://gartner2018.nuxeo.com/ui/#!/doc/9b0fefdb-54f0-4dd3-abeb-7c9d9c59401c-test54154";
+        String forceUri = "DOMAIN-54154";
+        List<Constants.LifecyclePhaseAction> actions = recordlionservice.pullActions(null, forceUri);
+        assertNotNull(actions);
+
+
+    }
+
+    @Ignore
+    @Test
+    public void testCreateRecordAllCycle() throws Exception {
+
+        //DocumentModel doc = session.getDocument(new PathRef("/default-domain"));
+        //assertNotNull(doc);
+
+        String title = "Test-" + UUID.randomUUID().toString().replace("-", "").toUpperCase().substring(1, 6);
+        DocumentModel doc = session.createDocumentModel("/", title, "File");
+        doc.setPropertyValue("dc:title", title);
+        doc = session.createDocument(doc);
+        session.save();
+
+        // WE MUST MANUALLY CLASSIFY in this example, we have the class Id
+        String recordClassIdStr = SimpleFeatureCustom.getLocalProperty(SimpleFeatureCustom.TEST_KEY_RECORD_CLASS_ID);
+        long recordClassId = Long.parseLong(recordClassIdStr);
+        JsonNode result = recordlionservice.createRecord(doc, recordClassId, true, TIMEOUT_SECONDS);
+        assertNotNull(result);
+        String z = "";
+        if (z != null) {
 
         }
 

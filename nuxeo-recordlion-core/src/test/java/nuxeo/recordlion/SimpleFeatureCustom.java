@@ -56,6 +56,8 @@ import org.nuxeo.runtime.test.runner.SimpleFeature;
  * nuxeo.recordlion.apiurl=THE_FULL_API_URL, like https://server.com/api/v1/
  * nuxeo.recordlion.login=THE_LOGIN
  * nuxeo.recordlion.password=THE_PASSWORD
+ * test.nuxeo.recordlion.recordClassName=Claim
+ * test.nuxeo.recordlion.recordClassId=1234
  * }
  * </pre>
  * </ul>
@@ -68,6 +70,10 @@ import org.nuxeo.runtime.test.runner.SimpleFeature;
 public class SimpleFeatureCustom extends SimpleFeature {
 
 	public static final String TEST_CONF_FILE = "private-test.conf";
+
+	public static final String TEST_KEY_RECORD_CLASS_NAME = "test.nuxeo.recordlion.recordClassName";
+
+    public static final String TEST_KEY_RECORD_CLASS_ID = "test.nuxeo.recordlion.recordClassId";
 
 	protected static Properties props = null;
 
@@ -113,6 +119,9 @@ public class SimpleFeatureCustom extends SimpleFeature {
 			addEnvironmentVariable(Constants.CONF_KEY_BASE_URL);
 			addEnvironmentVariable(Constants.CONF_KEY_LOGIN);
 			addEnvironmentVariable(Constants.CONF_KEY_PASSWORD);
+
+            addEnvironmentVariable(TEST_KEY_RECORD_CLASS_NAME);
+            addEnvironmentVariable(TEST_KEY_RECORD_CLASS_ID);
 		}
 
 		if (props != null) {
@@ -120,10 +129,18 @@ public class SimpleFeatureCustom extends SimpleFeature {
 			Properties systemProps = System.getProperties();
 			systemProps.setProperty(Constants.CONF_KEY_BASE_URL,
 					props.getProperty(Constants.CONF_KEY_BASE_URL));
+
 			systemProps.setProperty(Constants.CONF_KEY_LOGIN,
 					props.getProperty(Constants.CONF_KEY_LOGIN));
+
 			systemProps.setProperty(Constants.CONF_KEY_PASSWORD,
 					props.getProperty(Constants.CONF_KEY_PASSWORD));
+
+            systemProps.setProperty(TEST_KEY_RECORD_CLASS_NAME,
+                    props.getProperty(TEST_KEY_RECORD_CLASS_NAME));
+
+            systemProps.setProperty(TEST_KEY_RECORD_CLASS_ID,
+                    props.getProperty(TEST_KEY_RECORD_CLASS_ID));
 
 		}
 	}
@@ -135,6 +152,9 @@ public class SimpleFeatureCustom extends SimpleFeature {
 		p.remove(Constants.CONF_KEY_BASE_URL);
 		p.remove(Constants.CONF_KEY_LOGIN);
 		p.remove(Constants.CONF_KEY_PASSWORD);
+
+        p.remove(TEST_KEY_RECORD_CLASS_ID);
+        p.remove(TEST_KEY_RECORD_CLASS_ID);
 	}
 
 	protected void addEnvironmentVariable(String key) {

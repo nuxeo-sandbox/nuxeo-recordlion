@@ -18,6 +18,8 @@
  */
 package nuxeo.recordlion;
 
+import org.nuxeo.ecm.core.api.DocumentModel;
+
 /**
  * @since 10.1
  */
@@ -29,6 +31,62 @@ public class Constants {
 
     public static final String CONF_KEY_PASSWORD = "nuxeo.recordlion.password";
 
+    public static final int RECORDSTATE_NEW_OR_MODIFIED = 0;
+
+    public static final int RECORDSTATE_REMOVED = 0;
+
+    public enum LifecyclePhaseAction {
+        None, Transfer, Workflow, DeclareRecord, UndeclareRecord, DisposeDelete, DisposeTransfer, Permanent, DisposeRecycle;
+
+        private static final LifecyclePhaseAction[] allValues = values();
+
+        public static LifecyclePhaseAction fromInt(int n) {
+            return allValues[n];
+        }
+    }
+
+    public enum RecordDeclarationState {
+        None, Declare, Undeclare;
+
+        public static int toInt(RecordDeclarationState value) {
+            switch (value) {
+            case None:
+                return 0;
+
+            case Declare:
+                return 1;
+
+            case Undeclare:
+                return 2;
+
+            default:
+                return 0;
+            }
+        }
+    }
+
+    public enum RecordizePropertyState {
+        Default, // Overwritten with each Property Bag Update
+        Static, // Overwritten if provided in Property Bag, but never deleted
+        Constant; // Never deleted or overwritten
+
+        public static int toInt(RecordizePropertyState value) {
+            switch (value) {
+            case Default:
+                return 0;
+
+            case Static:
+                return 1;
+
+            case Constant:
+                return 2;
+
+            default:
+                return 0;
+            }
+        }
+    }
+
     /*
      * The end point constants have the same labels as the .NET SDK, the pattern changes a little (using %s instead of
      * parameter numbers). See comments for the changes added here
@@ -37,7 +95,7 @@ public class Constants {
 
     // Original is DELETE_RECORDIZERS which allows for deletion of one doc or for children (using "path starts with")
     // We limit to a single deletion
-    //public static final String DELETE_RECORDIZERS = "/api/v1/recordization?uri={0}&all={1}";
+    // public static final String DELETE_RECORDIZERS = "/api/v1/recordization?uri={0}&all={1}";
     public static final String DELETE_ONE_RECORD = "/api/v1/recordization?uri=%s";
 
     // We hard code page and pageSize
@@ -48,5 +106,24 @@ public class Constants {
 
     // We hard code page and pageSize
     public static final String GET_PENDING_ACTIONITEMS_CONTAINING_RECORDURI = "/api/v1/actionitemspending?recordUri=%s&page=0&pageSize=10";
+
+    // We hard code page and pageSize
+    public static final String GET_PENDING_ACTIONITEMS_CONTAINING_RECORDTITLEORURI = "/api/v1/actionitemspending?recordTitleOrUri=%s&page=0&pageSize=10";
+
+    public static final String PUT_RECORD_DECLARATION = "/api/v1/records?uri=%s";
+
+    public static final String PUT_RECORD_DECLARATION_WITH_ID = "/api/v1/records?id=%s";
+
+    public static final String PUT_RECORD_DECLARATION_WITH_IDENTIFIER = "/api/v1/records?identifier=%s";
+
+    /*
+     * -------------------> TO BE REMOVED ONCE WE KNOW THE API TO BUILD A URL FROM A DocumentModel
+     * <-----------------------
+     */
+    public static String getUrl(DocumentModel doc) {
+        // So hard to just get the permalink from the document.
+        // Let's hard code all this currently
+        return "https://gartner2018.nuxeo.com/ui/#!/doc/" + doc.getId();
+    }
 
 }

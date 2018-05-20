@@ -18,84 +18,73 @@
  */
 package nuxeo.recordlion.service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.TimeZone;
+import java.util.UUID;
 
-import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.DocumentModel;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import nuxeo.recordlion.Constants;
+
 /**
- * RecordLion, has some required fields when creating a "recordization".
- * <p>
- * In the required fields, there are "@file" and "@filesize". in this v0.1 of the POC, we:
- * <ul>
- * <li>Always use file:content, when available</li>
- * <li>If there is no file (empty, or a Folderish for example) we set file to ID of the document and the filesize to
- * 10</li>
- * </ul>
+ * (Inspired from Recordize.cs)
  *
- * @since 10.2
+ * @since 10.1
  */
 public class Recordize {
 
-    // Just becaise we need a file size, while not all documents have a file (example: A Folderish)
-    // When a Document has no file, the file ID will be set to the UID of the document
-    public static final int DEFAULT_FILE_SIZE = 0;
-
-    protected static final String LOCK = "Recordize_lock";
-
     protected DocumentModel doc;
 
-    public Recordize(DocumentModel doc) {
+    protected String uri;
+
+    protected int state;
+
+    protected String title;
+
+    protected String description;
+
+    protected long recordClassId;
+
+    protected boolean IsManuallyClassified;
+
+    protected String UID_FOR_TESTING;
+
+    public Recordize(DocumentModel doc, long recordClassId,
+            boolean isManuallyClassified) {
+        super();
+
+        UID_FOR_TESTING = UUID.randomUUID().toString().replace("-", "").toUpperCase().substring(1, 10);
+
         this.doc = doc;
+        uri = Constants.getUrl(doc) + "-test" + UID_FOR_TESTING;
+        state = Constants.RECORDSTATE_NEW_OR_MODIFIED;
+        title = doc.getTitle() + "-" + UID_FOR_TESTING;
+        description = "Claim from Nuxeo - test " + UID_FOR_TESTING;
+        this.recordClassId = recordClassId;
+        IsManuallyClassified = isManuallyClassified;
     }
 
-    public JsonNode buildRecord(JsonNode propertiesToAppend) {
+    public JsonNode build() {
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode obj = mapper.createObjectNode();
 
-        obj.put("@created", getISODate((Calendar) doc.getPropertyValue("dc:created")));
+        obj.put("State", state);
+        obj.put("Title", title);
+        obj.put("Uri", uri);
+        obj.put("Description", description);
 
-        Blob blob = doc.hasSchema("file") ? (Blob) doc.getPropertyValue("file:content") : null;
-        if(blob != null) {
-            obj.put("@file", blob.getDigest());
-            obj.put("@filesize", blob.getLength());
-        } else {
-            obj.put("@file", doc.getId());
-            obj.put("@filesize", DEFAULT_FILE_SIZE);
+        // "To use automatic classification, set `IsManuallyClassified` to `false` and do not send a record class ID"
+        if(IsManuallyClassified) {
+            obj.put("RecordClassId", recordClassId);
         }
+        obj.put("IsManuallyClassified", IsManuallyClassified);
 
-        obj.put("@folder", "Folder");// Put any value here
-
-        obj.put("@modified", getISODate((Calendar) doc.getPropertyValue("dc:created")));
-
-        obj.put("@repo", "nuxeo");
-
-        // So hard to just get the permalink from the document.
-        // Let's hard code all this currently
-        String uri = "https://gartner2018.nuxeo.com/ui/#!/doc/" + doc.getId();
-        obj.put("@uri", uri);
-
-        if(propertiesToAppend != null) {
-            obj.setAll((ObjectNode) propertiesToAppend);
-        }
+        obj.put("isRecord", true);
 
         return obj;
     }
 
-    protected String getISODate(Calendar date) {
-
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        df.setTimeZone(tz);
-        String isoStr = df.format(date.getTimeInMillis());
-
-        return isoStr;
-    }
 }
