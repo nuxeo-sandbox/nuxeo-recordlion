@@ -44,11 +44,13 @@ The POC was limited to creating a record for retention. So, our test recordLion 
 2. RecordLion creates the document, and checks if there is a LifeCyle or any related actions to perform
 3. RecordLion then prepares _Action Items_
 4. You mus regularly pull RecordLion on this document to check if what you have to do. In our example POC, we wait for the `DeclareRecord` action. **WARNING** This means we loop and call the RecordLion server in a loop. If you know the retention policy and it starts in a year, test in a year :-) This uses `RecordLionService#pullActions`. In this POC, you are suppose to _locK_  your Nuxeo document, it is in retention and should not be changed.
-5. Now that you catched the `DeclareRecord`, you must perform the final creation, via `RecordLionService##declareRecordForIdentifier`.
+5. Now that you catched the `DeclareRecord`, you must perform the required action on Nuxeo side (like Locking the document) and the final creation on RecordLion, via `RecordLionService##declareRecordForIdentifier`.
 
 ### Note: RecordLionService#createRecord
 
 The `RecordLionServce#createRecord` API performs the previous steps in one single call, for convenience and in the scope of this POC. This means that **the LikeCycle bound to the RecordClass on your RecordLion server _must_ DeclareRecord as soon as it is created**. A timeout of 3 minutes will apply, just in case it takes a bit more time.
+
+**Important**: This poeraiton is a short cut. But strict implementaiton should not use it: in the "perform actions" step, you must perform the action on your repository _before_  telling RecordLion it is onde (like Locking the record. SO if it fails, nothing is locked on RecordLion)
 
 The operation:
 

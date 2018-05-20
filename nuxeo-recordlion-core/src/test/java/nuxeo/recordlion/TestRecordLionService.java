@@ -155,7 +155,6 @@ public class TestRecordLionService {
     @Test
     public void testPullPendingActions() throws Exception {
 
-        // String forceUri = "https://gartner2018.nuxeo.com/ui/#!/doc/9b0fefdb-54f0-4dd3-abeb-7c9d9c59401c-test54154";
         String forceUri = "DOMAIN-54154";
         List<Constants.LifecyclePhaseAction> actions = recordlionservice.pullActions(null, forceUri);
         assertNotNull(actions);
