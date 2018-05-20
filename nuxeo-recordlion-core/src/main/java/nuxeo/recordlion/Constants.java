@@ -18,12 +18,18 @@
  */
 package nuxeo.recordlion;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.runtime.api.Framework;
 
 /**
  * @since 10.1
  */
 public class Constants {
+
+    private static final Log log = LogFactory.getLog(Constants.class);
 
     public static final String CONF_KEY_BASE_URL = "nuxeo.recordlion.baseurl";
 
@@ -122,10 +128,29 @@ public class Constants {
      * -------------------> TO BE REMOVED ONCE WE KNOW THE API TO BUILD A URL FROM A DocumentModel
      * <-----------------------
      */
+    protected static String baseUrl = null;
+
+    protected static String LOCK = "getUrl_LOCK";
+
     public static String getUrl(DocumentModel doc) {
         // So hard to just get the permalink from the document.
         // Let's hard code all this currently
-        return "https://gartner2018.nuxeo.com/ui/#!/doc/" + doc.getId();
+        if (baseUrl == null) {
+            synchronized (LOCK) {
+                if (baseUrl == null) {
+                    baseUrl = Framework.getProperty("nuxeo.url");
+                    if (StringUtils.isBlank(baseUrl)) {
+                        log.warn("No nuxeo.url property found => hard coding localhost:8080");
+                        baseUrl = "http://localhost:8080";
+                    }
+                    if (!baseUrl.endsWith("/")) {
+                        baseUrl += "/";
+                    }
+                }
+            }
+        }
+
+        return baseUrl + "ui/#!/doc/" + doc.getId();
     }
 
 }
