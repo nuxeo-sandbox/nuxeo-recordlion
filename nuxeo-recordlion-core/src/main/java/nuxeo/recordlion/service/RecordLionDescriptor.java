@@ -18,6 +18,7 @@
  */
 package nuxeo.recordlion.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.common.xmap.annotation.XNode;
 import org.nuxeo.common.xmap.annotation.XObject;
 
@@ -41,6 +42,9 @@ public class RecordLionDescriptor {
     @XNode("password")
     protected String password = "";
 
+    @XNode("defaultRecordClassId")
+    protected String defaultRecordClassId = "0";
+
     public String getName() {
         return name;
     }
@@ -62,6 +66,14 @@ public class RecordLionDescriptor {
 
     public String getPassword() {
         return password;
+    }
+
+    public long getDefaultRecordClassId() {
+        if(StringUtils.isBlank(defaultRecordClassId)) {
+            return 0L;
+        }
+
+        return Long.valueOf(defaultRecordClassId);
     }
 
 }

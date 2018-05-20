@@ -39,6 +39,10 @@ import nuxeo.recordlion.service.RecordLionService;
  * <p>
  * Also, IMPORTANT - IMPORTANT: The test check for the calssRecordClassName set in the test configuration (see
  * SeimpleFeatureCustom)
+ * <p>
+ * Also super <b>IMPORTANT - IMPORTANT - IMPORTANT - IMPORTANT</b><br />
+ * Most, if not all the unit tests are @Ignore, because we don't want to test the remote server built just the time of a
+ * demo, we don't want to create a lot of records there while writing this proklugin, just when needed.
  *
  * @since 10.1
  */
@@ -81,6 +85,7 @@ public class TestRecordLionService {
 
     @Test
     public void testServiceIsDeployed() {
+        Assume.assumeTrue("No custom configuration file => no test", SimpleFeatureCustom.hasLocalTestConfiguration());
         assertNotNull(recordlionservice);
     }
 
@@ -150,11 +155,10 @@ public class TestRecordLionService {
     @Test
     public void testPullPendingActions() throws Exception {
 
-        //String forceUri = "https://gartner2018.nuxeo.com/ui/#!/doc/9b0fefdb-54f0-4dd3-abeb-7c9d9c59401c-test54154";
+        // String forceUri = "https://gartner2018.nuxeo.com/ui/#!/doc/9b0fefdb-54f0-4dd3-abeb-7c9d9c59401c-test54154";
         String forceUri = "DOMAIN-54154";
         List<Constants.LifecyclePhaseAction> actions = recordlionservice.pullActions(null, forceUri);
         assertNotNull(actions);
-
 
     }
 
@@ -162,8 +166,8 @@ public class TestRecordLionService {
     @Test
     public void testCreateRecordAllCycle() throws Exception {
 
-        //DocumentModel doc = session.getDocument(new PathRef("/default-domain"));
-        //assertNotNull(doc);
+        // DocumentModel doc = session.getDocument(new PathRef("/default-domain"));
+        // assertNotNull(doc);
 
         String title = "Test-" + UUID.randomUUID().toString().replace("-", "").toUpperCase().substring(1, 6);
         DocumentModel doc = session.createDocumentModel("/", title, "File");

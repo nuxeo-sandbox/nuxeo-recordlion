@@ -20,6 +20,7 @@
       <baseUrl>${nuxeo.recordlion.baseurl:=}</baseUrl>
       <login>${nuxeo.recordlion.login:=}</login>
       <password>${nuxeo.recordlion.password:=}</password>
+      <defaultRecordClassId>${nuxeo.recordlion.defaultRecordClassId:=}</defaultRecordClassId>
     </configuration>
   </extension>
 

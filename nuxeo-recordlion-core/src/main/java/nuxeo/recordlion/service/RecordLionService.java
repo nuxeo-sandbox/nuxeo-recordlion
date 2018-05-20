@@ -34,15 +34,29 @@ public interface RecordLionService {
     public JsonNode recordizeDocument(DocumentModel doc, long recordClassId, boolean isManuallyClassified,
             JsonNode propertiesToAppend) throws IOException;
 
+    // (forceUri is for testing)
+    public List<Constants.LifecyclePhaseAction> pullActions(DocumentModel doc, String forceUri) throws IOException;
+
+    public JsonNode declareRecordForIdentifier(String recordIdentifier) throws IOException;
+
+
     /**
      * WARNING: This can take time beofr RecordLion prepares the action, etc. This shoudl never be called synchrnousely,
      * in the UI, etc.
      * <p>
      * It 1. Recordize 2. Regularly pull until the DeclareRecord action item is received and 3. Declare the record.
+     * <p>
+     * <b>WARNING</b><br>
+     * =====================================<br>
+     * This API is useful only if you set the LifeCycle to start retention immediately ("created + 0 days")<br>
+     * If the policy creates the retention in 1 month, the call will fail.<br>
+     * This was good in the context of the POC.
+     * =====================================<br>
      *
      * @param doc
      * @param recordClassId
      * @param isManuallyClassified
+     * @param timeOutInSeconds the timeout. Any value < 10 is reset to 10s.
      * @return
      * @throws IOException
      * @since 10.1
@@ -52,12 +66,11 @@ public interface RecordLionService {
 
     public JsonNode deleteRecord(DocumentModel doc) throws IOException;
 
-    // (ofreUri is for testing)
-    public List<Constants.LifecyclePhaseAction> pullActions(DocumentModel doc, String forceUri) throws IOException;
-
     public JsonNode callGET(String api) throws IOException;
 
     public JsonNode callWithBody(String httpVerb, String api, String body, boolean noResponseExpected)
             throws IOException;
+
+    public long getDefaultRecordClassId();
 
 }

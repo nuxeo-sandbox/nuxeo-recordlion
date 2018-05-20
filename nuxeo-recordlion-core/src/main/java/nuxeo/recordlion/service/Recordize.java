@@ -18,8 +18,7 @@
  */
 package nuxeo.recordlion.service;
 
-import java.util.UUID;
-
+import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.core.api.DocumentModel;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -49,21 +48,26 @@ public class Recordize {
 
     protected boolean IsManuallyClassified;
 
-    protected String UID_FOR_TESTING;
-
     public Recordize(DocumentModel doc, long recordClassId,
             boolean isManuallyClassified) {
         super();
 
-        UID_FOR_TESTING = UUID.randomUUID().toString().replace("-", "").toUpperCase().substring(1, 10);
-
         this.doc = doc;
-        uri = Constants.getUrl(doc) + "-test" + UID_FOR_TESTING;
+        uri = Constants.getUrl(doc);
         state = Constants.RECORDSTATE_NEW_OR_MODIFIED;
-        title = doc.getTitle() + "-" + UID_FOR_TESTING;
-        description = "Claim from Nuxeo - test " + UID_FOR_TESTING;
+        title = doc.getTitle();
+        description = "";
         this.recordClassId = recordClassId;
         IsManuallyClassified = isManuallyClassified;
+    }
+
+    public void setDescription(String description) {
+
+        if(StringUtils.isBlank(description)) {
+            this.description = "Nuxeo Document";
+        } else {
+            this.description = description;
+        }
     }
 
     public JsonNode build() {

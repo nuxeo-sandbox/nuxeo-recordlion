@@ -59,6 +59,8 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
 
     private static final Log log = LogFactory.getLog(RecordLionServiceImpl.class);
 
+    public static final int DEFAULT_PULLACTIONS_TIMEOUT_SECONDS = 60;
+
     protected static final String XP = "configuration";
 
     protected RecordLionDescriptor config = null;
@@ -154,6 +156,50 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
     }
 
     @Override
+    public List<Constants.LifecyclePhaseAction> pullActions(DocumentModel doc, String forceUri) throws IOException {
+
+        String endPoint;
+
+        if (StringUtils.isBlank(forceUri)) {
+            endPoint = String.format(Constants.GET_PENDING_ACTIONITEMS_CONTAINING_RECORDTITLEORURI,
+                    Constants.getUrl(doc));
+        } else {
+            endPoint = String.format(Constants.GET_PENDING_ACTIONITEMS_CONTAINING_RECORDTITLEORURI, forceUri);
+        }
+
+        System.out.print("pullActions endPoint:\n" + endPoint + "\n");
+
+        JsonNode result = callGET(endPoint);
+
+        List<Constants.LifecyclePhaseAction> actions = new ArrayList<Constants.LifecyclePhaseAction>();
+        ArrayNode items = (ArrayNode) result.get("Items");
+        items.forEach((JsonNode obj) -> {
+            int action = obj.get("Action").asInt();
+            actions.add(LifecyclePhaseAction.fromInt(action));
+        });
+
+        return actions;
+    }
+
+    @Override
+    public JsonNode declareRecordForIdentifier(String recordIdentifier) throws IOException {
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        RecordDeclaration recDecl = new RecordDeclaration();
+        recDecl.setRecord(RecordDeclarationState.Declare);
+        JsonNode recordDeclarationJson = recDecl.build();
+
+        String body = mapper.writeValueAsString(recordDeclarationJson);
+        String endPoint = String.format(Constants.PUT_RECORD_DECLARATION_WITH_IDENTIFIER, recordIdentifier);
+        JsonNode result = callWithBody("PUT", endPoint, body, true);
+
+        return result;
+
+    }
+
+
+    @Override
     public JsonNode createRecord(DocumentModel doc, long recordClassId, boolean isManuallyClassified,
             long timeOutInSeconds) throws IOException {
 
@@ -174,7 +220,7 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
         boolean timedOut = false;
         boolean gotIt = false;
         if (timeOutInSeconds < 10) {
-            timeOutInSeconds = 10;
+            timeOutInSeconds = DEFAULT_PULLACTIONS_TIMEOUT_SECONDS;
         }
         long timeOutMS = timeOutInSeconds * 1000;
         long startTime = System.currentTimeMillis();
@@ -216,20 +262,10 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
         // ============================================================
         if (gotIt) {
 
-            ObjectMapper mapper = new ObjectMapper();
-
-            /*
-             * Record record = new Record(doc); JsonNode recordJson = record.build(null);
-             */
-            // We actually must pass a RecordDeclarationState, not the record itself
-            RecordDeclaration recDecl = new RecordDeclaration();
-            recDecl.setRecord(RecordDeclarationState.Declare);
-            JsonNode recordDeclarationJson = recDecl.build();
-
-            String body = mapper.writeValueAsString(recordDeclarationJson);
-            String endPoint = String.format(Constants.PUT_RECORD_DECLARATION_WITH_IDENTIFIER, recordIdentifier);
-            result = callWithBody("PUT", endPoint, body, true);
-
+            result = declareRecordForIdentifier(recordIdentifier);
+            ((ObjectNode) result).put("result", "OK");
+        } else {
+            ((ObjectNode) result).put("result", "KO");
         }
 
         // If we are here, then all went well. Make sure to add info for the caller
@@ -246,32 +282,6 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
         // TODO Auto-generated method stub
         // return false;
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<Constants.LifecyclePhaseAction> pullActions(DocumentModel doc, String forceUri) throws IOException {
-
-        String endPoint;
-
-        if (StringUtils.isBlank(forceUri)) {
-            endPoint = String.format(Constants.GET_PENDING_ACTIONITEMS_CONTAINING_RECORDTITLEORURI,
-                    Constants.getUrl(doc));
-        } else {
-            endPoint = String.format(Constants.GET_PENDING_ACTIONITEMS_CONTAINING_RECORDTITLEORURI, forceUri);
-        }
-
-        System.out.print("pullActions endPoint:\n" + endPoint + "\n");
-
-        JsonNode result = callGET(endPoint);
-
-        List<Constants.LifecyclePhaseAction> actions = new ArrayList<Constants.LifecyclePhaseAction>();
-        ArrayNode items = (ArrayNode) result.get("Items");
-        items.forEach((JsonNode obj) -> {
-            int action = obj.get("Action").asInt();
-            actions.add(LifecyclePhaseAction.fromInt(action));
-        });
-
-        return actions;
     }
 
     @Override
@@ -365,6 +375,11 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
         return node;
     }
 
+    @Override
+    public long getDefaultRecordClassId() {
+        return config.getDefaultRecordClassId();
+    }
+
     protected String buildUrl(String api) {
         if (!api.startsWith("/")) {
             api = "/" + api;
@@ -378,4 +393,5 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
         connection.setRequestProperty("Content-Type", "application/json");
 
     }
+
 }

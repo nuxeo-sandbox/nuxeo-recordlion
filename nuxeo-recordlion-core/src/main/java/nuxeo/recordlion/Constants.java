@@ -31,6 +31,8 @@ public class Constants {
 
     public static final String CONF_KEY_PASSWORD = "nuxeo.recordlion.password";
 
+    public static final String CONF_KEY_DEFAULT_RECORDCLASSID = "nuxeo.recordlion.defaultRecordClassId";
+
     public static final int RECORDSTATE_NEW_OR_MODIFIED = 0;
 
     public static final int RECORDSTATE_REMOVED = 0;
