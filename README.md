@@ -63,7 +63,7 @@ The operation:
   * `recordClassId`:
     * The RecordClass ID to use if `isManuallyClassified` is ` true`.
     * The default class will be read in the configuration if `recordClassId` is not passed or 0.
-    * As per RecordLion API, if `isManuallyClassified` is `false`, `recordClassId` is ignred (not even passed to the server)
+    * As per RecordLion API, if `isManuallyClassified` is `false`, `recordClassId` is ignored (not even passed to the server)
   * `isManuallyClassified`: See `recordClassId`
   * `timeOutInSeconds`: Time to wait before giving up in the loop that fetches actions (`RecordLionService#pullActions`). Default value is 60
 * The operation returns the input document unmodified and set the `resultVarName` to a JSON Object as String with the following fields:
@@ -73,7 +73,7 @@ The operation:
       "result": "OK", // or "KO" in case of failure,
       "uri": the URI used when saving the record
       "title": The title of the RecordLion record (same as dc:title)
-      "recordidentifier": The identifier, usable with RecordLionServioce#declareRecordForIdentifier
+      "recordIdentifier": The identifier, usable with RecordLionService#declareRecordForIdentifier
     }
     ```
 
