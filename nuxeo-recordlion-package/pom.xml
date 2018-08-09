@@ -3,12 +3,12 @@
   <parent>
     <groupId>nuxeo.recordlion</groupId>
     <artifactId>nuxeo-recordlion-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>10.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>nuxeo-recordlion-package</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>10.2-SNAPSHOT</version>
   <packaging>zip</packaging>
   <name>Nuxeo recordlion package - Nuxeo recordlion</name>
 
