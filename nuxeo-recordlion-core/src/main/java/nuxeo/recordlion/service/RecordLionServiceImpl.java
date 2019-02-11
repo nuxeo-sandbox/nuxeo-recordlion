@@ -265,7 +265,8 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
             result = declareRecordForIdentifier(recordIdentifier);
             ((ObjectNode) result).put("result", "OK");
         } else {
-            ((ObjectNode) result).put("result", "KO");
+            ObjectMapper mapper = new ObjectMapper();
+            result = mapper.readTree("{\"result\":\"KO\"}");
         }
 
         // If we are here, then all went well. Make sure to add info for the caller
@@ -288,7 +289,6 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
     public JsonNode callGET(String api) throws IOException {
 
         JsonNode node = null;
-        InputStream stream = null;
 
         String urlStr = buildUrl(api);
         URL url = new URL(urlStr);
@@ -300,17 +300,17 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
 
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-
-                stream = connection.getInputStream();
-
-                String jsonStr = IOUtils.toString(stream, UTF_8);
-                ObjectMapper mapper = new ObjectMapper();
-                node = mapper.readTree(jsonStr);
+                
+                try(InputStream stream = connection.getInputStream()) {
+                    String jsonStr = IOUtils.toString(stream, UTF_8);
+                    ObjectMapper mapper = new ObjectMapper();
+                    node = mapper.readTree(jsonStr);
+                }
+                
             } else {
                 throw new IOException("Failed connecting to the server with HTTP result code: " + responseCode);
             }
         } finally {
-            IOUtils.closeQuietly(stream);
             if (connection != null) {
                 connection.disconnect();
             }
@@ -328,7 +328,6 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
         }
 
         JsonNode node = null;
-        InputStream stream = null;
 
         String urlStr = buildUrl(api);
         URL url = new URL(urlStr);
@@ -351,10 +350,10 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
-                stream = connection.getInputStream();
-
-                String jsonStr = IOUtils.toString(stream, UTF_8);
-                node = mapper.readTree(jsonStr);
+                try(InputStream stream = connection.getInputStream()) {
+                    String jsonStr = IOUtils.toString(stream, UTF_8);
+                    node = mapper.readTree(jsonStr);
+                }
 
             } else if (noResponseExpected && responseCode == 204) {
                 // Ok, on response expected, 204 NO CONTENT was returned
@@ -366,7 +365,6 @@ public class RecordLionServiceImpl extends DefaultComponent implements RecordLio
                 throw new IOException("Failed connecting to the server with HTTP result code: " + responseCode);
             }
         } finally {
-            IOUtils.closeQuietly(stream);
             if (connection != null) {
                 connection.disconnect();
             }

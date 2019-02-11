@@ -115,7 +115,7 @@ public class TestRecordLionService {
 
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void testHasExpectedRecordClass() throws Exception {
 
