@@ -7,15 +7,15 @@ THIS IS **WORK IN PROGRESS**
 
 We are very, very sorry the code and way it works is poorly documented, but we are in a big hurry :-).
 
-**IMPORTANT**: So far, passing the full do URI to some API does not work => _we rely on the dc:title_, so in this context, please make sure your titles are uniques...
+**IMPORTANT**: So far, passing the full doc URI to some API does not work => _we rely on the dc:title_, so in this context, please make sure your titles are uniques...
 
-**IMPORTANT**: Unit tests are almost all  because they require a runnning record lion server. See the code (SimpleFeatureCustom, mainly) to test with your recordLion server.
+**IMPORTANT**: Unit tests are almost all `@Ignore` because they require a runnning record lion server. See the code (SimpleFeatureCustom, mainly) to test with your recordLion server.
 
 ## Principles
 
 Assuming you are familiar with RecordLion.
 
-The plugin exposes a service to connect to a RecordLion (Gimmal) server. COnfiguration is done by adding configuraiton parameters:
+The plugin exposes a service to connect to a RecordLion (Gimmal) server. Configuration is done by adding configuraiton parameters:
 
 ```
 nuxeo.recordlion.baseurl=THE_BASE_URL (example: https://my.recordlion.server.com)
@@ -48,9 +48,9 @@ The POC was limited to creating a record for retention. So, our test recordLion 
 
 ### Note: RecordLionService#createRecord
 
-The `RecordLionServce#createRecord` API performs the previous steps in one single call, for convenience and in the scope of this POC. This means that **the LikeCycle bound to the RecordClass on your RecordLion server _must_ DeclareRecord as soon as it is created**. A timeout of 3 minutes will apply, just in case it takes a bit more time.
+The `RecordLionServce#createRecord` API performs the previous steps in one single call, for convenience and in the scope of this POC. This means that **the LifeCycle bound to the RecordClass on your RecordLion server _must_ DeclareRecord as soon as it is created**. A timeout of 3 minutes will apply, just in case it takes a bit more time.
 
-**Important**: This poeraiton is a short cut. But strict implementaiton should not use it: in the "perform actions" step, you must perform the action on your repository _before_  telling RecordLion it is onde (like Locking the record. SO if it fails, nothing is locked on RecordLion)
+**Important**: This operation is a short cut. But strict implementation should not use it: in the "perform actions" step, you must perform the action on your repository _before_  telling RecordLion it is done (like Locking the record. So, if it fails, nothing is locked on RecordLion)
 
 The operation:
 
@@ -77,10 +77,10 @@ The operation:
     }
     ```
 
-Example of use
 
+## Using the RecordLion.CreateRecord operation
 
-## Using the RecordLion.CReateRecord operation
+[TBD]
 
 
 ## Build
